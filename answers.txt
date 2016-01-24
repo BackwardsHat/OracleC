@@ -1,0 +1,8 @@
+(a) 6
+(b) Mon Aug 24 12:19:51 2015 
+(c) Couldn't find any files before 8/23/2015
+(d) 0 times
+(e) git log the commits logs of the repo, while git status shows the difference between current HEAD commit and the current state of the index and working tree.
+(f) git whatchanged main.java
+(g) git log --all --grep="transaction"
+(h) git log --all --author="Lauren" --after="2016-01-05" --before="2016-02-16"
