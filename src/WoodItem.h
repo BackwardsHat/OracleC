@@ -18,14 +18,14 @@ class WoodItem {
 
 public:
 
-	std::string type;
-	double baseDeliveryTime;
-	double price;
-
 	// Member functions declaration
 	WoodItem();
 	WoodItem(std::string woodType, double deliveryTime, double itemPrice);
 
+private:
+    std::string type;
+	double baseDeliveryTime;
+	double price;
 };
 
 #endif /* WOODITEM_H_ */

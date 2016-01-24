@@ -1,2 +1,4 @@
-Bob Fakedude;123 Not Real Road, New New York, TX, 12345;12/12/12
+Bob Fakedude;123 Not Real Road, New New York, TX, 12345;12/12/2012
 Cherry:250;Wenge:400;White Oak:100
+Steve NoOne;444 Fourth Forth Fork, Forne Fort, FL 44444;04/04/2014
+Curly Maple:40;Sawdust:1000;

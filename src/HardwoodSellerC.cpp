@@ -8,12 +8,14 @@
 
 #include <iostream>
 #include <fstream>
+#include <string.h>
+#include "Record.h"
 
 using namespace std;
 
 #define MAX_BUFFER 256
 
-int readInputFile(char *);
+int readInputFile(char *, vector<Record>&);
 double deliveryTime();
 
 int main(int argc, char *argv[]) {
@@ -22,27 +24,58 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     
-    if(!readInputFile(argv[1]))
+    std::vector<Record> records; 
+    if( !readInputFile(argv[1], records) )
 
 	return 0;
+}
+
+void createRecord(char * line, vector<Record>& records) {
+    size_t index = 0;
+    char * rec_info[4];
+
+    rec_info[index] = strtok(line, ";");
+
+    while(rec_info[index++] != NULL) {
+        cout << rec_info[index-1] << '\n';
+        rec_info[index] = strtok(NULL, ";");
+    }
+    
+    records.push_back( Record(rec_info[0], rec_info[1], rec_info[2]) ); 
+}
+
+void readItems(char * line, vector<Record>& records) {
+    size_t index = 0;
+    char * token;
+    char * type;
+    int quantity;
+
+    token = strtok(line, ";");
+    while(token != NULL) {
+
+        cout << token << '\n';
+        token = strtok(NULL, ";"); 
+    }
 }
 
 /*
  * Method to read the input file
  */
-int readInputFile(char *inputFilePath) {
+int readInputFile(char *inputFilePath, vector<Record>& records) {
     ifstream inFile(inputFilePath, ios::in);
-    char line[MAX_BUFFER];
+    char line[MAX_BUFFER]; 
 
-    if(!inFile) return 1; 
+    if(!inFile) {
+        cout << "Could not open " << inputFilePath << "\n";
+        return 1; 
+    }
 
-    cout << inputFilePath << " opened\n";
-
-    int db_count = 0;
-    while(inFile.getline(line, MAX_BUFFER, '\n'))
-    {
-
-        cout << db_count++ << ' ' << line << '\n';
+    while(inFile.getline(line, MAX_BUFFER, '\n')) {
+        if(!strchr(line, ':'))
+            createRecord(line, records);
+        else
+            readItems(line, records);
+        cout << '\n';
     }
     
     inFile.close();
