@@ -10,6 +10,7 @@
 #include <fstream>
 #include <string.h>
 #include <map>
+#include <cmath>
 #include <vector>
 #include "Record.h"
 
@@ -26,7 +27,8 @@ struct charCompare {
 typedef map<char *, WoodItem, charCompare> LUT;
 
 int readInputFile(char *, vector<Record>&);
-double deliveryTime(char *);
+void populateLookUpTable(LUT&);
+void processRecords(const vector<Record>&, const LUT&);
 
 int main(int argc, char *argv[]) {
     if(argc != 2) {
@@ -34,8 +36,11 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     
-    std::vector<Record> records; 
+    vector<Record> records; 
+    LUT lookUpTable;
+    populateLookUpTable(lookUpTable);
     if( !readInputFile(argv[1], records) )
+        processRecords(records, lookUpTable);
 
 	return 0;
 }
@@ -46,15 +51,13 @@ void createRecord(char * line, vector<Record>& records) {
 
     rec_info[index] = strtok(line, ";");
 
-    while(rec_info[index++] != NULL) {
-        cout << rec_info[index-1] << '\n';
+    while(rec_info[index++] != NULL) 
         rec_info[index] = strtok(NULL, ";");
-    }
     
     records.push_back( Record(rec_info[0], rec_info[1], rec_info[2]) ); 
 }
 
-void readItems(char * line, vector<Record>& records, LUT& lookUpTable) {
+void readItems(char * line, vector<Record>& records) {
     size_t numTokens;
     vector<char *> tokens;
     char * token;
@@ -64,19 +67,18 @@ void readItems(char * line, vector<Record>& records, LUT& lookUpTable) {
         tokens.push_back(token);
         token = strtok(NULL, ";"); 
     }
+
     numTokens = tokens.size();
     for(size_t i = 0; i < numTokens; i++) {
         char * type = strtok(tokens.at(i), ":"); 
-        int quantity = atoi( strtok(NULL, ":") );
-        cout << "Type: " << type << "\nQuantity: " << quantity << '\n';
-        cout << "Delivery Time: " 
-             << (float) lookUpTable.find(type)->second.getBaseDeliveryTime()
-             << " hours\n";
-        records.back().AddItem(type, quantity); 
+        int boardFeet = atoi( strtok(NULL, ":") );
+        records.back().AddItem(type, boardFeet); 
     }
 }
 
-void createLookUpTable(LUT& lookUpTable) {
+// Fills the table with WoodItem objects
+// Format: Name, baseDeliveryTime, price
+void populateLookUpTable(LUT& lookUpTable) {
     lookUpTable.insert(LUT::value_type((char *)"Cherry",
         WoodItem("Cherry", 2.5, 5.95)));
     lookUpTable.insert(LUT::value_type((char *)"Curly Maple",
@@ -97,21 +99,17 @@ void createLookUpTable(LUT& lookUpTable) {
 int readInputFile(char *inputFilePath, vector<Record>& records) {
     ifstream inFile(inputFilePath, ios::in);
     char line[MAX_BUFFER]; 
-    LUT lookUpTable;
-    createLookUpTable(lookUpTable);
-
+    
     if(!inFile) {
         cout << "Could not open " << inputFilePath << "\n";
         return 1; 
     }
 
-    while(inFile.getline(line, MAX_BUFFER, '\n')) {
+    while(inFile.getline(line, MAX_BUFFER, '\n')) 
         if(!strchr(line, ':'))
             createRecord(line, records);
         else
-            readItems(line, records, lookUpTable);
-        cout << '\n';
-    }
+            readItems(line, records);
     
     inFile.close();
     return 0;
@@ -122,7 +120,57 @@ int readInputFile(char *inputFilePath, vector<Record>& records) {
 /*
  * Method to compute the deliveryTime
  */
-double deliveryTime(char * woodType) {
+double deliveryTime(
+        const vector< pair<char *, int> >& itemList, 
+        const LUT& lookUpTable) {
 	double deliveryETA = 0.0; 
+
+    // Find max delivery time 
+    for(vector< pair<char *, int> >::const_iterator it = itemList.begin();
+           it != itemList.end(); ++it) {
+        char * woodType = it->first;
+        double baseDT = lookUpTable.find(woodType)->second.getBaseDeliveryTime();
+        double unitDT = 0;
+        int boardFeet = it->second;
+        cout << "\n>> Wood Type: " << woodType;
+        cout << "\n>> BF: " << boardFeet;
+        boardFeet = ceil(boardFeet/100.0);  // per 100 BF
+        cout << "\n>> BF/100: " << boardFeet;
+        boardFeet <= 5 ? unitDT = boardFeet * baseDT : unitDT = 5.5 * baseDT;
+        cout << "\n>> unitDT: " << unitDT << " baseDT: " << baseDT;
+        cout << "\n>> maxDT: " << deliveryETA << '\n';
+        if(deliveryETA < unitDT)
+            deliveryETA = unitDT; 
+    } 
+
 	return deliveryETA;
+}
+
+double calcTotalPrice(
+        const vector< pair<char *, int> >& itemList, 
+        const LUT& lookUpTable) {
+    double sumPrice = 0.0;
+    for(vector< pair<char *, int> >::const_iterator it = itemList.begin();
+        it != itemList.end(); ++it ) {
+        char * woodType = it->first;
+        double woodPrice = lookUpTable.find(woodType)->second.getPrice(); 
+        int boardFeet = it->second;
+        sumPrice += boardFeet * woodPrice; 
+    }
+    return sumPrice;
+}
+
+void processRecords(const vector<Record>& records, const LUT& lookUpTable) {
+    double totalPrice = 0, maxDeliveryTime =  0;
+    size_t length = records.size(); 
+
+    for(size_t i = 0; i < length; ++i) {
+        totalPrice = calcTotalPrice(records.at(i).getItemList(), lookUpTable);
+        maxDeliveryTime = deliveryTime(
+                records.at(i).getItemList(), lookUpTable);
+        cout << records.at(i)
+             << "\nTotal Price:\t$" << totalPrice
+             << "\nDelivery ETA:\t" << maxDeliveryTime << " hours\n\n";
+    }
+
 }
