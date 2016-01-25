@@ -22,6 +22,9 @@ public:
 	WoodItem();
 	WoodItem(std::string woodType, double deliveryTime, double itemPrice);
 
+    std::string getType() const;
+    double getBaseDeliveryTime() const;
+    double getPrice() const;
 private:
     std::string type;
 	double baseDeliveryTime;

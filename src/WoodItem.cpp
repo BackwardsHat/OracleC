@@ -25,3 +25,7 @@ WoodItem::WoodItem(std::string woodType, double deliveryTime, double itemPrice) 
 	price = itemPrice;
 }
 
+std::string WoodItem::getType()         const { return type; }
+double WoodItem::getPrice()             const { return price; }
+double WoodItem::getBaseDeliveryTime()  const { return baseDeliveryTime; }
+

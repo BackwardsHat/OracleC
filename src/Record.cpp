@@ -15,10 +15,14 @@ Record::Record(
     m_date = date;
 }
 
-void Record::AddItem(const WoodItem& item) {
-    v_items.push_back(item);
+void Record::AddItem(char * type, int quantity) {
+    v_items.push_back(std::pair<char *, int>(type, quantity));
 }
 
-std::string Record::getName()    { return m_name;    }
-std::string Record::getAddress() { return m_address; }
-std::string Record::getDate()    { return m_date;    }
+const std::pair<char *, int>& Record::getItem(int index) const {
+    return v_items.at(index);
+}
+
+std::string Record::getName()    const { return m_name;    }
+std::string Record::getAddress() const { return m_address; }
+std::string Record::getDate()    const { return m_date;    }
