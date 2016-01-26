@@ -11,6 +11,7 @@
 #include <string.h>
 #include <map>
 #include <cmath>
+#include <iomanip>
 #include <vector>
 #include "Record.h"
 
@@ -25,10 +26,11 @@ struct charCompare {
 };
 
 typedef map<char *, WoodItem, charCompare> LUT;
+typedef vector< pair<char *, int> > ItemList;
 
 int readInputFile(char *, vector<Record>&);
 void populateLookUpTable(LUT&);
-void processRecords(const vector<Record>&, const LUT&);
+void processAndDisplay(const vector<Record>&, const LUT&);
 
 int main(int argc, char *argv[]) {
     if(argc != 2) {
@@ -40,7 +42,7 @@ int main(int argc, char *argv[]) {
     LUT lookUpTable;
     populateLookUpTable(lookUpTable);
     if( !readInputFile(argv[1], records) )
-        processRecords(records, lookUpTable);
+        processAndDisplay(records, lookUpTable);
 
 	return 0;
 }
@@ -116,29 +118,23 @@ int readInputFile(char *inputFilePath, vector<Record>& records) {
 }
 
 
-
 /*
  * Method to compute the deliveryTime
  */
 double deliveryTime(
-        const vector< pair<char *, int> >& itemList, 
+        const ItemList& itemList, 
         const LUT& lookUpTable) {
 	double deliveryETA = 0.0; 
 
     // Find max delivery time 
-    for(vector< pair<char *, int> >::const_iterator it = itemList.begin();
+    for(ItemList::const_iterator it = itemList.begin();
            it != itemList.end(); ++it) {
         char * woodType = it->first;
         double baseDT = lookUpTable.find(woodType)->second.getBaseDeliveryTime();
         double unitDT = 0;
         int boardFeet = it->second;
-        cout << "\n>> Wood Type: " << woodType;
-        cout << "\n>> BF: " << boardFeet;
         boardFeet = ceil(boardFeet/100.0);  // per 100 BF
-        cout << "\n>> BF/100: " << boardFeet;
         boardFeet <= 5 ? unitDT = boardFeet * baseDT : unitDT = 5.5 * baseDT;
-        cout << "\n>> unitDT: " << unitDT << " baseDT: " << baseDT;
-        cout << "\n>> maxDT: " << deliveryETA << '\n';
         if(deliveryETA < unitDT)
             deliveryETA = unitDT; 
     } 
@@ -147,10 +143,10 @@ double deliveryTime(
 }
 
 double calcTotalPrice(
-        const vector< pair<char *, int> >& itemList, 
+        const ItemList& itemList, 
         const LUT& lookUpTable) {
     double sumPrice = 0.0;
-    for(vector< pair<char *, int> >::const_iterator it = itemList.begin();
+    for(ItemList::const_iterator it = itemList.begin();
         it != itemList.end(); ++it ) {
         char * woodType = it->first;
         double woodPrice = lookUpTable.find(woodType)->second.getPrice(); 
@@ -160,17 +156,41 @@ double calcTotalPrice(
     return sumPrice;
 }
 
-void processRecords(const vector<Record>& records, const LUT& lookUpTable) {
-    double totalPrice = 0, maxDeliveryTime =  0;
-    size_t length = records.size(); 
+void printItems(
+        const ItemList& itemList,
+        const LUT& lookUpTable) {
+    cout << setw(18) << "Wood Type"
+         << setw(12) << "BF"
+         << setw(15) << "Price Per BF"
+         << "Cost" << '\n';
+    for(ItemList::const_iterator it = itemList.begin();
+            it != itemList.end(); ++it) {
+        double woodPrice = lookUpTable.find(it->first)->second.getPrice();
+        cout << fixed << setprecision(2) << left << setw(18) << it->first 
+             << setw(12) << it->second
+             << setw(15) << woodPrice
+             << it->second * woodPrice
+             << '\n'; 
+    }
+}
 
-    for(size_t i = 0; i < length; ++i) {
-        totalPrice = calcTotalPrice(records.at(i).getItemList(), lookUpTable);
+
+void processAndDisplay(const vector<Record>& records, const LUT& lookUpTable) {
+    double totalPrice = 0, maxDeliveryTime =  0;
+
+    for(vector<Record>::const_iterator it = records.begin();
+            it != records.end(); ++it) {
+        totalPrice = calcTotalPrice(it->getItemList(), lookUpTable);
         maxDeliveryTime = deliveryTime(
-                records.at(i).getItemList(), lookUpTable);
-        cout << records.at(i)
-             << "\nTotal Price:\t$" << totalPrice
-             << "\nDelivery ETA:\t" << maxDeliveryTime << " hours\n\n";
+                it->getItemList(), lookUpTable);
+        cout << "\n\n" 
+             << left << setw(12) << "Name:" << it->getName() << '\n'
+             << setw(12) << "Address:"  << it->getAddress()  << '\n'
+             << setw(12) << "Date:"     << it->getDate()     << '\n'
+             << "\t-----------Order------------\n";
+        printItems(it->getItemList(), lookUpTable);
+        cout << "\nTotal Price:\t$" << totalPrice
+             << "\nDelivery ETA:\t" << maxDeliveryTime << " hours\n";
     }
 
 }
