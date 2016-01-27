@@ -3,6 +3,7 @@
  *
  *  Created on: Aug 24, 2015
  *      Author: Esteban
+ *  Summary: Object to hold Wood Item information the shop is selling.
  */
 
 
@@ -17,7 +18,6 @@
 class WoodItem {
 
 public:
-
 	// Member functions declaration
 	WoodItem();
 	WoodItem(std::string woodType, double deliveryTime, double itemPrice);

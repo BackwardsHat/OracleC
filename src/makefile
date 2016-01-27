@@ -1,7 +1,7 @@
 CC=clang++
 FLAGS=-O3 -Wall -std=c++11
 PROG=run.exe
-ARGS=orders_example.txt
+ARGS=./testfiles/orders_example.txt
 
 all: HardwoodSellerC.o Record.o WoodItem.o 
 	$(CC) $(FLAGS) -o $(PROG) HardwoodSellerC.o Record.o WoodItem.o

@@ -18,6 +18,7 @@ Record::Record(
 //    m_totalPrice = 0.0;
 //    m_maxDeliveryTime = 0.0;
 }
+
 /*
 Record::~Record() {
     for(std::vector< std::pair<char *, int> >::const_iterator
@@ -38,19 +39,6 @@ const std::pair<char *, int>& Record::getItem(int index) const {
 
 const std::vector< std::pair<char *, int> >& Record::getItemList() const {
     return v_items;
-}
-
-std::ostream& operator<<(std::ostream& os, const Record& rec) {
-    os << "Name:\t\t" << rec.m_name
-       << "\nAddress:\t" << rec.m_address
-       << "\nDate:\t\t" << rec.m_date
-       << "\n\t---Orders---\n";
-    for(std::vector< std::pair<char *, int> >::const_iterator
-            it = rec.v_items.begin(); it != rec.v_items.end(); ++it) {
-        os << "Wood Type: " << it->first << "\tBF: " << it->second << '\n';
-    }
-        
-    return os;
 }
 
 std::string Record::getName()    const { return m_name;    }
