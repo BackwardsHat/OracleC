@@ -2,7 +2,8 @@
  * WoodItem.cpp
  *
  *  Created on: Aug 24, 2015
- *      Author: Joseph Furiate
+ *      Author: Esteban
+ *      Editor: Joseph Furiate
  */
 
 #include "WoodItem.h"

@@ -16,7 +16,6 @@
 #define WOODITEM_H_
 
 class WoodItem {
-
 public:
 	// Member functions declaration
 	WoodItem();
